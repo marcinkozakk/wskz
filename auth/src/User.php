@@ -1,6 +1,7 @@
 <?php
 
-require './Database.php';
+require 'Database.php';
+require 'Mail.php';
 
 class User
 {
@@ -54,7 +55,21 @@ class User
         return !empty($this->errors);
     }
 
-    public function login($login, $password)
+    public static function remind($email)
+    {
+        $db = new Database();
+        $db->connect();
+
+        $user = $db->getUserByEmail($email);
+
+        if ($user) {
+            $secret = bin2hex(random_bytes(10));
+            (new Mail())->sendReminder($email, $user['id'], $secret);
+            $db->createReminder($user['id'], $secret);
+        }
+    }
+    
+    public function login($login, $password): bool
     {
         $db = new Database();
         $db->connect();
@@ -76,6 +91,15 @@ class User
         $db = new Database();
         $db->connect();
 
-        return $db->createUser($this->dbParams);
+        $status = $db->createUser($this->dbParams);
+
+        if ($status === true) {
+            (new Mail())->sendWelcome(
+                $this->dbParams[':email'],
+                $this->dbParams[':first_name']
+            );
+        }
+
+        return $status;
     }
 }

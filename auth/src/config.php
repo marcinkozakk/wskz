@@ -4,4 +4,5 @@ return [
     'dbname'   => 'wskz',
     'user'     => 'root',
     'password' => 'root',
+    'url'      => 'http://localhost:8000/'
 ];

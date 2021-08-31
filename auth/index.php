@@ -1,7 +1,7 @@
 <?php
-$errorsCodes = require './errors.php';
+$errorsCodes = require 'src/errors.php';
 if (isset($_POST['register'])) {
-    require './User.php';
+    require 'src/User.php';
     $user = new User($_POST);
     if (!$user->valid) {
         $registerErrors = $user->errors;
@@ -14,7 +14,7 @@ if (isset($_POST['register'])) {
         }
     }
 } elseif (isset($_POST['logging'])) {
-    require './User.php';
+    require 'src/User.php';
     $user = new User();
     if ($user->login($_POST['login_login'], $_POST['login_password'])) {
         header('Location: /auth/home.php');
@@ -49,10 +49,10 @@ if (isset($_POST['register'])) {
                     <h4 class="card-title text-center mb-4 mt-1">Zaloguj się</h4>
                     <hr>
                     <?= isset($status) && $status === true
-                        ? '<p class="text-success text-center">Świetnie! Teraz możesz się zalogować</p>'
+                        ? '<p class="text-success">Świetnie! Teraz możesz się zalogować</p>'
                         : null ?>
                     <?= isset($loginError)
-                        ? "<p class=\"text-success text-danger\">$errorsCodes[$loginError]</p>"
+                        ? "<p class=\"text-danger\">$errorsCodes[$loginError]</p>"
                         : null ?>
                     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
                         <input name="logging" type="hidden" value="1">
@@ -77,7 +77,8 @@ if (isset($_POST['register'])) {
                         <div class="form-group">
                             <button class="btn btn-primary btn-block" type="submit">Zaloguj</button>
                         </div>
-                        <p class="text-center"><a class="btn" href="#">Zapomniałeś hasła?</a></p>
+                        <p class="text-center"><a class="btn btn-link" href="/auth/remind.php">Zapomniałeś
+                                hasła?</a></p>
                     </form>
                 </article>
             </div>
@@ -90,7 +91,7 @@ if (isset($_POST['register'])) {
                     <h4 class="card-title text-center mb-4 mt-1">Załóż konto</h4>
                     <hr>
                     <?php foreach ($registerErrors ?? [] as $error) {
-                        echo "<p class=\"text-danger text-center\">$errorsCodes[$error]</p>";
+                        echo "<p class=\"text-danger\">$errorsCodes[$error]</p>";
                     }
                     ?>
                     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
