@@ -17,7 +17,8 @@ if (isset($_POST['register'])) {
     require './User.php';
     $user = new User();
     if ($user->login($_POST['login_login'], $_POST['login_password'])) {
-        var_dump($_SESSION);
+        header('Location: /auth/home.php');
+        exit;
     } else {
         $loginError = 'LOGIN_ERROR';
     }
@@ -81,7 +82,7 @@ if (isset($_POST['register'])) {
                 </article>
             </div>
 
-            <div class="mt-4 h3 text-center">Lub</div>
+            <div class="mt-4 h2 text-center">Lub</div>
 
             <!--register-->
             <div class="card mt-4">

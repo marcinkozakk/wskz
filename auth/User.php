@@ -61,7 +61,7 @@ class User
 
         $user = $db->login($login, $password);
         if ($user !== false) {
-            session_regenerate_id();
+            session_start();
             $_SESSION['userId'] = $user['id'];
             $_SESSION['userName'] = $user['first_name'] . ' ' . $user['last_name'];
             $_SESSION['sex'] = $user['sex'];
