@@ -6,6 +6,7 @@
 2. Change `auth/src/config.php`
 3. Run php server, e.g. `php -S localhost:8000`
 4. Visit `localhost:8000/auth/`
+5. For properly functioning e-mails, verify your system configuration (e.g. mailhog)
 
 ## REST API
 
