@@ -1,3 +1,29 @@
+<?php
+$errorsCodes = require './errors.php';
+if (isset($_POST['register'])) {
+    require './User.php';
+    $user = new User($_POST);
+    if (!$user->valid) {
+        $registerErrors = $user->errors;
+    } else {
+        $status = $user->save();
+        if ($status !== true) {
+            $registerErrors[] = $status;
+        } else {
+            $_POST = [];
+        }
+    }
+} elseif (isset($_POST['logging'])) {
+    require './User.php';
+    $user = new User();
+    if ($user->login($_POST['login_login'], $_POST['login_password'])) {
+        var_dump($_SESSION);
+    } else {
+        $loginError = 'LOGIN_ERROR';
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,20 +41,27 @@
             <div class="text-center">
                 <h1 class="display-1">Witaj!</h1>
             </div>
-            
+
             <!--Login-->
             <div class="card">
                 <article class="card-body">
                     <h4 class="card-title text-center mb-4 mt-1">Zaloguj się</h4>
                     <hr>
-                    <p class="text-danger text-center">Some message goes here</p>
-                    <form>
+                    <?= isset($status) && $status === true
+                        ? '<p class="text-success text-center">Świetnie! Teraz możesz się zalogować</p>'
+                        : null ?>
+                    <?= isset($loginError)
+                        ? "<p class=\"text-success text-danger\">$errorsCodes[$loginError]</p>"
+                        : null ?>
+                    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+                        <input name="logging" type="hidden" value="1">
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-user"></i> </span>
                                 </div>
-                                <input class="form-control" name="login" placeholder="Login" type="text">
+                                <input class="form-control" value="<?= $_POST['login_login'] ??
+                                '' ?>" name="login_login" placeholder="Login" type="text">
                             </div>
                         </div>
                         <div class="form-group">
@@ -36,13 +69,14 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
                                 </div>
-                                <input class="form-control" name="password" placeholder="Hasło" type="password">
+                                <input class="form-control" value="<?= $_POST['login_password'] ??
+                                '' ?>" name="login_password" placeholder="Hasło" type="password">
                             </div>
                         </div>
                         <div class="form-group">
                             <button class="btn btn-primary btn-block" type="submit">Zaloguj</button>
                         </div>
-                        <p class="text-center"><a class="btn" href="#">Forgot password?</a></p>
+                        <p class="text-center"><a class="btn" href="#">Zapomniałeś hasła?</a></p>
                     </form>
                 </article>
             </div>
@@ -54,14 +88,19 @@
                 <article class="card-body">
                     <h4 class="card-title text-center mb-4 mt-1">Załóż konto</h4>
                     <hr>
-                    <p class="text-danger text-center">Some message goes here</p>
-                    <form>
+                    <?php foreach ($registerErrors ?? [] as $error) {
+                        echo "<p class=\"text-danger text-center\">$errorsCodes[$error]</p>";
+                    }
+                    ?>
+                    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+                        <input name="register" type="hidden" value="1">
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-user"></i> </span>
                                 </div>
-                                <input class="form-control" name="login" placeholder="Login" type="email">
+                                <input class="form-control" value="<?= $_POST['login'] ??
+                                '' ?>" name="login" placeholder="Login" type="login" required minlength="6">
                             </div>
                         </div>
                         <div class="form-group">
@@ -69,7 +108,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
                                 </div>
-                                <input class="form-control" name="password" placeholder="Hasło" type="password">
+                                <input class="form-control" value="<?= $_POST['password'] ??
+                                '' ?>" name="password" placeholder="Hasło" type="password" required minlength="8">
                             </div>
                         </div>
                         <div class="form-group">
@@ -77,7 +117,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-envelope"></i> </span>
                                 </div>
-                                <input class="form-control" name="email" placeholder="Email" type="text">
+                                <input class="form-control" value="<?= $_POST['email'] ??
+                                '' ?>" name="email" placeholder="Email" type="email" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -85,7 +126,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-user-edit"></i> </span>
                                 </div>
-                                <input class="form-control" name="firstName" placeholder="Imię" type="text">
+                                <input class="form-control" value="<?= $_POST['first_name'] ??
+                                '' ?>" name="first_name" placeholder="Imię" type="text" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -93,7 +135,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"> <i class="fa fa-user-edit"></i> </span>
                                 </div>
-                                <input class="form-control" name="lastName" placeholder="Nazwisko" type="text">
+                                <input class="form-control" value="<?= $_POST['last_name'] ??
+                                '' ?>" name="last_name" placeholder="Nazwisko" type="text" required>
                             </div>
                         </div>
                         <div class="form-group">
@@ -120,7 +163,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary btn-block" type="submit">Zarejestruj</button>
+                            <button class="btn btn-primary btn-block" type="submit">Zarejestruj
+                            </button>
                         </div>
                     </form>
                 </article>
